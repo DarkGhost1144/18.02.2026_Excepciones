@@ -1,0 +1,207 @@
+import java.util.Scanner;
+
+/**
+ * Clase principal ejecutable para probar el sistema de gestion "Javito".
+ * Incluye un menu interactivo para gestionar clientes, alojamientos y archivos
+ * JSON.
+ *
+ * @author jkur
+ * @version 3.0
+ * @see Alojamiento
+ * @see Cliente
+ * @see Javito
+ * @see AlojamientoExistenteException
+ * @see ClienteExistenteException
+ * @see EmailNoValidoException
+ * @see DniNoValidoException
+ */
+public class Main {
+
+    public static void main(String[] args) {
+        // Instancia del controlador principal
+        Javito sistema = new Javito();
+        Scanner sc = new Scanner(System.in);
+        int opcion = -1;
+
+        do {
+            try {
+                mostrarMenu();
+                String entrada = sc.nextLine();
+
+                // Evitamos error si el usuario pulsa enter sin escribir nada
+                if (entrada.isEmpty()) {
+                    continue;
+                }
+
+                opcion = Integer.parseInt(entrada);
+
+                switch (opcion) {
+                    case 1: // Importar datos
+                        System.out.println("\n--- Importando datos ---");
+                        sistema.importClientesFromJSON();
+                        sistema.importAlojamientosFromJSON();
+                        break;
+
+                    case 2: // Alta Cliente
+                        realizarAltaCliente(sistema, sc);
+                        break;
+
+                    case 3: // Alta Alojamiento
+                        realizarAltaAlojamiento(sistema, sc);
+                        break;
+
+                    case 4: // Baja Cliente
+                        System.out.print("\nIntroduce el DNI del cliente a eliminar: ");
+                        String dniBaja = sc.nextLine();
+                        if (sistema.bajaCliente(dniBaja)) {
+                            System.out.println("Cliente eliminado correctamente.");
+                        } else {
+                            System.err.println("No se encontro ningun cliente con ese DNI.");
+                        }
+                        break;
+
+                    case 5: // Baja Alojamiento
+                        System.out.print("\nIntroduce el nombre del alojamiento a eliminar: ");
+                        String nomBaja = sc.nextLine();
+                        if (sistema.bajaAlojamiento(nomBaja)) {
+                            System.out.println("Alojamiento eliminado correctamente.");
+                        } else {
+                            System.err.println("No se encontro el alojamiento.");
+                        }
+                        break;
+
+                    case 6: // Listados Generales
+                        System.out.println("\n");
+                        sistema.listadoClientes();
+                        System.out.println("\n");
+                        sistema.listadoAlojamientos();
+                        break;
+
+                    case 7: // Rankings (Top)
+                        System.out.println("\n--- TOP CLIENTES (Mas fieles) ---");
+                        sistema.topClientes();
+                        System.out.println("\n--- TOP ALOJAMIENTOS ---");
+                        sistema.topAlojamientos();
+                        break;
+
+                    case 8: // Exportar datos
+                        System.out.println("\n--- Exportando datos a JSON ---");
+                        sistema.exportClientesToJSON();
+                        sistema.exportAlojamientoToJSON();
+                        break;
+
+                    case 0: // Salir
+                        System.out.println("Cerrando el sistema...");
+                        break;
+
+                    default:
+                        System.out.println("Opcion no reconocida.");
+                }
+
+            } catch (NumberFormatException e) {
+                System.err.println("Error: Debes introducir un numero valido para el menu.");
+            } catch (Exception e) {
+                System.err.println("Error inesperado: " + e.getMessage());
+            }
+
+            if (opcion != 0) {
+                System.out.println("\nPresione ENTER para continuar...");
+                sc.nextLine();
+            }
+
+        } while (opcion != 0);
+
+        sc.close();
+    }
+
+    /**
+     * Muestra las opciones del menu por consola.
+     */
+    private static void mostrarMenu() {
+        System.out.println("\n--- MENU PRINCIPAL ---");
+        System.out.println("1. Importar Clientes y Alojamientos (JSON)");
+        System.out.println("2. Alta de Cliente");
+        System.out.println("3. Alta de Alojamiento");
+        System.out.println("4. Baja de Cliente");
+        System.out.println("5. Baja de Alojamiento");
+        System.out.println("6. Mostrar Listados (Alfabetico)");
+        System.out.println("7. Mostrar Rankings (Top)");
+        System.out.println("8. Exportar datos a JSON");
+        System.out.println("0. Salir");
+        System.out.print("Seleccione una opcion: ");
+    }
+
+    /**
+     * Metodo auxiliar para gestionar la logica de pedir datos y capturar
+     * excepciones al crear Clientes.
+     */
+    private static void realizarAltaCliente(Javito sistema, Scanner sc) {
+        System.out.println("\n--- Nuevo Cliente ---");
+        System.out.print("Nombre completo: ");
+        String nombre = sc.nextLine();
+
+        System.out.print("DNI (8 num + Letra): ");
+        String dni = sc.nextLine();
+
+        System.out.print("Email: ");
+        String email = sc.nextLine();
+
+        System.out.print("Lugar de Residencia: ");
+        String residencia = sc.nextLine();
+
+        Cliente nuevo = new Cliente(nombre, dni, email, residencia);
+
+        try {
+            // Intentamos dar de alta. Si falla algo, saltara la excepcion correspondiente
+            boolean exito = sistema.altaCliente(nuevo);
+            if (exito) {
+                System.out.println("Cliente registrado con exito!");
+            } else {
+                System.err.println("No se pudo registrar (Posiblemente la lista este llena).");
+            }
+        } catch (ClienteExistenteException e) {
+            System.err.println("ERROR: El cliente ya existe. " + e.getMessage());
+        } catch (DniNoValidoException e) {
+            System.err.println("ERROR: El formato del DNI no es valido. " + e.getMessage());
+        } catch (EmailNoValidoException e) {
+            System.err.println("ERROR: El formato del Email no es valido. " + e.getMessage());
+        }
+    }
+
+    /**
+     * Metodo auxiliar para gestionar la logica de pedir datos y capturar
+     * excepciones al crear Alojamientos.
+     */
+    private static void realizarAltaAlojamiento(Javito sistema, Scanner sc) {
+        System.out.println("\n--- Nuevo Alojamiento ---");
+        try {
+            System.out.print("Nombre del alojamiento: ");
+            String nombre = sc.nextLine();
+
+            System.out.print("Capacidad (personas): ");
+            int capacidad = Integer.parseInt(sc.nextLine());
+
+            System.out.print("Tarifa por noche (Euros): ");
+            double tarifa = Double.parseDouble(sc.nextLine());
+
+            System.out.print("Tiene chimenea (s/n): ");
+            boolean chimenea = sc.nextLine().trim().equalsIgnoreCase("s");
+
+            System.out.print("Tiene jacuzzi (s/n): ");
+            boolean jacuzzi = sc.nextLine().trim().equalsIgnoreCase("s");
+
+            Alojamiento nuevo = new Alojamiento(nombre, capacidad, tarifa, chimenea, jacuzzi);
+
+            if (sistema.altaAlojamiento(nuevo)) {
+                System.out.println("Alojamiento registrado con exito!");
+            } else {
+                System.err.println("No se pudo registrar (Lista llena).");
+            }
+
+        } catch (NumberFormatException e) {
+            System.err.println("ERROR: Debes introducir valores numericos para capacidad/tarifa.");
+        } catch (AlojamientoExistenteException e) {
+            System.err.println("ERROR: Ya existe un alojamiento con ese nombre. " + e.getMessage());
+        }
+    }
+}
