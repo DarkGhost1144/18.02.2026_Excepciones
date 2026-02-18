@@ -1,0 +1,16 @@
+package Ejercicio03_Javitos;
+
+/**
+ *
+ * @author Jkur
+ * @version 1.0
+ * @see Exception
+ * @see ClienteExistenteExceptione
+ */
+public class ClienteExistenteException extends Exception {
+
+    public ClienteExistenteException(String mensaje) {
+        super(mensaje);
+    }
+
+}
