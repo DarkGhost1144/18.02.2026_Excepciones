@@ -1,0 +1,425 @@
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+
+/**
+ * Clase principal del sistema de gestión de alojamientos turísticos "Javito".
+ * Gestiona colecciones de clientes y alojamientos, permitiendo altas, bajas,
+ * listados y operaciones de importación/exportación en formato JSON.
+ *
+ * @author JKur
+ * @version 3.0
+ */
+public class Javito {
+
+    // Arrays para almacenar las entidades
+    /**
+     * Array de alojamientos disponibles en el sistema (máximo 15)
+     */
+    private Alojamiento[] alojamientos;
+
+    /**
+     * Array de clientes registrados en el sistema (máximo 100)
+     */
+    private Cliente[] clientes;
+
+    // Contadores de elementos actuales
+    /**
+     * Número actual de alojamientos registrados
+     */
+    private int numAlojamientos;
+
+    /**
+     * Número actual de clientes registrados
+     */
+    private int numClientes;
+
+    /**
+     * Constructor por defecto de Javito. Inicializa los arrays con capacidad
+     * máxima y los contadores a 0.
+     */
+    public Javito() {
+        alojamientos = new Alojamiento[15];   // Capacidad máxima: 15 alojamientos
+        clientes = new Cliente[100];          // Capacidad máxima: 100 clientes
+        numAlojamientos = 0;                  // Sin alojamientos inicialmente
+        numClientes = 0;                      // Sin clientes inicialmente
+    }
+
+    /**
+     * Registra un nuevo cliente en el sistema. Verifica que hay espacio
+     * disponible y que el cliente no es nulo.
+     *
+     * @param nuevo Cliente a registrar
+     * @return true si se añadió correctamente, false si el array está lleno o
+     * el cliente es nulo
+     */
+    public boolean altaCliente(Cliente nuevo) throws ClienteExistenteException, DniNoValidoException, EmailNoValidoException {
+        // Verifica que hay espacio y que el cliente es válido
+        if (numClientes >= clientes.length || nuevo == null) {
+            return false;  // Array lleno o cliente nulo
+        }
+
+        if (!nuevo.getDni().matches("^[0-9]{8}[A-Za-z]$")) {
+            throw new DniNoValidoException("El DNI no es valido");
+        }
+        if (!nuevo.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new EmailNoValidoException("El Email no coresponde con la expresion");
+        }
+        for (int i = 0; i < numClientes; i++) {
+            if (clientes[i].getDni().equalsIgnoreCase(nuevo.getDni())) {
+                throw new ClienteExistenteException("El Email no coresponde con la expresion");
+            }
+        }
+
+        clientes[numClientes] = nuevo;  // Añade el cliente al array
+        numClientes++;                   // Incrementa el contador
+        return true;                     // Operación exitosa
+    }
+
+    /**
+     * Elimina un cliente del sistema buscándolo por DNI. Desplaza los elementos
+     * posteriores para mantener el array compacto.
+     *
+     * @param dni DNI del cliente a eliminar
+     * @return true si se eliminó correctamente, false si no se encontró
+     */
+    public boolean bajaCliente(String dni) {
+        int pos = -1;  // Posición del cliente a eliminar
+
+        // Busca el cliente por DNI
+        for (int i = 0; i < numClientes; i++) {
+            if (clientes[i].getDni().equalsIgnoreCase(dni)) {
+                pos = i;  // Cliente encontrado
+                break;
+            }
+        }
+
+        // Si no se encontró el cliente
+        if (pos == -1) {
+            return false;
+        }
+
+        // Desplaza los elementos posteriores una posición hacia la izquierda
+        for (int i = pos; i < numClientes - 1; i++) {
+            clientes[i] = clientes[i + 1];
+        }
+
+        clientes[numClientes - 1] = null;  // Limpia la última posición
+        numClientes--;                      // Decrementa el contador
+        return true;                        // Operación exitosa
+    }
+
+    /**
+     * Muestra un listado de todos los clientes ordenados alfabéticamente por
+     * nombre. Utiliza ordenación burbuja sobre una copia del array.
+     */
+    public void listadoClientes() {
+        System.out.println("--- Listado de Clientes ---");
+
+        // Crea una copia para no alterar el array original
+        Cliente[] copia = Arrays.copyOf(clientes, numClientes);
+
+        // Ordenación burbuja por nombre
+        for (int i = 0; i < copia.length - 1; i++) {
+            for (int j = 0; j < copia.length - 1 - i; j++) {
+                // Compara nombres ignorando mayúsculas
+                if (copia[j].getNombre().compareToIgnoreCase(copia[j + 1].getNombre()) > 0) {
+                    // Intercambia elementos
+                    Cliente aux = copia[j];
+                    copia[j] = copia[j + 1];
+                    copia[j + 1] = aux;
+                }
+            }
+        }
+
+        // Muestra los clientes ordenados
+        for (Cliente c : copia) {
+            System.out.println(c);
+        }
+    }
+
+    /**
+     * Muestra un ranking de clientes ordenados por número de veces alojado
+     * (descendente). Los clientes más fieles aparecen primero.
+     */
+    public void topClientes() {
+        // Crea una copia del array de clientes
+        Cliente[] copia = Arrays.copyOf(clientes, numClientes);
+
+        // Ordenación burbuja por numVecesAlojado (descendente)
+        for (int i = 0; i < copia.length - 1; i++) {
+            for (int j = 0; j < copia.length - 1 - i; j++) {
+                // Compara número de veces alojado
+                if (copia[j].getNumVecesAlojado() < copia[j + 1].getNumVecesAlojado()) {
+                    // Intercambia elementos
+                    Cliente aux = copia[j];
+                    copia[j] = copia[j + 1];
+                    copia[j + 1] = aux;
+                }
+            }
+        }
+
+        // Muestra el ranking
+        for (Cliente c : copia) {
+            System.out.println(c);
+        }
+    }
+
+    /**
+     * Registra un nuevo alojamiento en el sistema. Verifica que hay espacio
+     * disponible y que el alojamiento no es nulo.
+     *
+     * @param nuevo Alojamiento a registrar
+     * @return true si se añadió correctamente, false si el array está lleno o
+     * el alojamiento es nulo
+     */
+    public boolean altaAlojamiento(Alojamiento nuevo) throws AlojamientoExistenteException {
+        // Verifica que hay espacio y que el alojamiento es válido
+        if (numAlojamientos >= alojamientos.length || nuevo == null) {
+            return false;  // Array lleno o alojamiento nulo
+        }
+
+        for (int i = 0; i < numAlojamientos; i++) {
+            if (alojamientos[i].getNombre().equalsIgnoreCase(nuevo.getNombre())) {
+                throw new AlojamientoExistenteException("Ya existe un alojamiento con ese nombre");
+            }
+        }
+
+        alojamientos[numAlojamientos] = nuevo;  // Añade el alojamiento
+        numAlojamientos++;                       // Incrementa el contador
+        return true;                             // Operación exitosa
+    }
+
+    /**
+     * Elimina un alojamiento del sistema buscándolo por nombre. Desplaza los
+     * elementos posteriores para mantener el array compacto.
+     *
+     * @param nombre Nombre del alojamiento a eliminar
+     * @return true si se eliminó correctamente, false si no se encontró
+     */
+    public boolean bajaAlojamiento(String nombre) {
+        int pos = -1;  // Posición del alojamiento a eliminar
+
+        // Busca el alojamiento por nombre
+        for (int i = 0; i < numAlojamientos; i++) {
+            if (alojamientos[i].getNombre().equalsIgnoreCase(nombre)) {
+                pos = i;  // Alojamiento encontrado
+                break;
+            }
+        }
+
+        // Si no se encontró el alojamiento
+        if (pos == -1) {
+            return false;
+        }
+
+        // Desplaza los elementos posteriores
+        for (int i = pos; i < numAlojamientos - 1; i++) {
+            alojamientos[i] = alojamientos[i + 1];
+        }
+
+        alojamientos[numAlojamientos - 1] = null;  // Limpia la última posición
+        numAlojamientos--;                          // Decrementa el contador
+        return true;                                // Operación exitosa
+    }
+
+    /**
+     * Muestra un listado de todos los alojamientos registrados.
+     */
+    public void listadoAlojamientos() {
+        System.out.println("--- Listado de Alojamientos ---");
+
+        // Crea una copia del array
+        Alojamiento[] copia = Arrays.copyOf(alojamientos, numAlojamientos);
+
+        // Muestra todos los alojamientos
+        for (Alojamiento a : copia) {
+            System.out.println(a);
+        }
+    }
+
+    /**
+     * Muestra un ranking de alojamientos. Nota: Actualmente muestra todos sin
+     * ordenar. Implementar ordenación por numAlquilado.
+     */
+    public void topAlojamientos() {
+        // Crea una copia del array
+        Alojamiento[] copia = Arrays.copyOf(alojamientos, numAlojamientos);
+
+        // TODO: Implementar ordenación por veces alquilada (descendente)
+        // Muestra los alojamientos
+        for (Alojamiento a : copia) {
+            System.out.println(a);
+        }
+    }
+
+    /**
+     * Importa clientes desde un archivo JSON llamado "clientes.json". Lee el
+     * archivo, parsea el JSON y crea objetos Cliente que añade al sistema.
+     * Captura y maneja errores de lectura y parseo.
+     */
+    public void importClientesFromJSON() {
+        String filePath = "clientes.json";  // Ruta del archivo JSON
+
+        try {
+            // Lee el contenido completo del archivo
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
+            System.out.println("\nLeyendo clientes...\n");
+
+            // Parsea el contenido como un array JSON
+            JSONArray jsonArray = new JSONArray(content);
+
+            // Procesa cada objeto JSON del array
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                // Extrae los campos del JSON
+                String nombre = jsonObject.getString("nombre");
+                String dni = jsonObject.getString("dni");
+                String email = jsonObject.getString("email");
+                String lugarResidencia = jsonObject.getString("lugarResidencia");
+                int numVecesAlojado = jsonObject.getInt("numVecesAlojado");
+
+                // Crea el objeto Cliente (el constructor inicializa numVecesAlojado en 0)
+                Cliente cliente = new Cliente(nombre, dni, email, lugarResidencia);
+
+                // Añade el cliente al sistema usando el método de gestión
+                this.altaCliente(cliente);
+            }
+
+            System.out.println("Clientes importados correctamente.");
+
+        } catch (IOException e) {
+            // Error al leer el archivo
+            System.err.println("Error leyendo el fichero: " + e.getMessage());
+        } catch (Exception e) {
+            // Error al procesar el JSON
+            System.err.println("Error procesando el JSON: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Exporta todos los clientes del sistema a un archivo JSON llamado
+     * "clientes.json". Crea un array JSON con todos los clientes y lo escribe
+     * en el archivo con formato legible.
+     */
+    public void exportClientesToJSON() {
+        String filePath = "clientes.json";  // Ruta del archivo de salida
+        JSONArray jsonArray = new JSONArray();  // Array JSON para almacenar clientes
+
+        // Recorre solo los clientes válidos (hasta numClientes)
+        for (int i = 0; i < numClientes; i++) {
+            Cliente c = clientes[i];
+            JSONObject jsonObject = new JSONObject();  // Objeto JSON para cada cliente
+
+            // Añade todos los campos del cliente al JSON
+            jsonObject.put("nombre", c.getNombre());
+            jsonObject.put("dni", c.getDni());
+            jsonObject.put("email", c.getEmail());
+            jsonObject.put("lugarResidencia", c.getLugarResidencia());
+            jsonObject.put("numVecesAlojado", c.getNumVecesAlojado());
+
+            // Añade el objeto al array
+            jsonArray.put(jsonObject);
+        }
+
+        // Intenta escribir el archivo JSON
+        try (FileWriter file = new FileWriter(filePath)) {
+            file.write(jsonArray.toString(4));  // Sangría de 4 espacios para legibilidad
+            System.out.println("Archivo JSON de clientes exportado exitosamente a: " + filePath);
+        } catch (IOException e) {
+            // Error al escribir el archivo
+            System.err.println("Error al escribir el archivo JSON: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Importa alojamientos desde un archivo JSON llamado "alojamientos.json".
+     * Lee el archivo, parsea el JSON y crea objetos Alojamiento que añade al
+     * sistema. Nota: Actualmente no utiliza todos los campos del JSON (mejora
+     * pendiente).
+     */
+    public void importAlojamientosFromJSON() {
+        String filePath = "alojamientos.json";  // Ruta del archivo JSON
+
+        try {
+            // Lee el contenido del archivo
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
+            System.out.println("\nLeyendo alojamientos...\n");
+
+            // Parsea el contenido como array JSON
+            JSONArray jsonArray = new JSONArray(content);
+
+            // Procesa cada objeto JSON
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                // Extrae los campos del JSON
+                String nombre = jsonObject.getString("nombre");
+                int capacidad = jsonObject.getInt("capacidad");
+                double tarifa = jsonObject.getDouble("tarifa");
+                int tieneChimenea = jsonObject.getInt("tieneChimenea");
+                int tieneJacuzzi = jsonObject.getInt("tieneJacuzzi");
+                int alquiladaAhora = jsonObject.getInt("alquiladaAhora");
+                int numVecesAlquilada = jsonObject.getInt("numVecesAlquilada");
+
+                // Crea el alojamiento (TODO: usar los valores booleanos del JSON)
+                Alojamiento alojamiento = new Alojamiento(nombre, capacidad, tarifa, true, true);
+
+                // Añade al sistema
+                this.altaAlojamiento(alojamiento);
+            }
+
+            System.out.println("Alojamientos importados correctamente.");
+
+        } catch (IOException e) {
+            // Error al leer el archivo
+            System.err.println("Error leyendo el fichero: " + e.getMessage());
+        } catch (Exception e) {
+            // Error al procesar el JSON
+            System.err.println("Error procesando el JSON: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Exporta todos los alojamientos del sistema a un archivo JSON llamado
+     * "alojamientos.json". Crea un array JSON con todos los alojamientos y lo
+     * escribe en el archivo.
+     */
+    public void exportAlojamientoToJSON() {
+        String filePath = "alojamientos.json";  // Ruta del archivo de salida
+        JSONArray jsonArray = new JSONArray();  // Array JSON para almacenar alojamientos
+
+        // Recorre solo los alojamientos válidos
+        for (int i = 0; i < numAlojamientos; i++) {
+            Alojamiento a = alojamientos[i];
+            JSONObject jsonObject = new JSONObject();  // Objeto JSON para cada alojamiento
+
+            // Añade todos los campos del alojamiento
+            jsonObject.put("nombre", a.getNombre());
+            jsonObject.put("capacidad", a.getCapacidad());
+            jsonObject.put("tarifa", a.getTarifa());
+            jsonObject.put("tiene Chimenea", a.isChimenea());
+            jsonObject.put("tiene Jacuzzi", a.isJacuzzi());
+            jsonObject.put("alquilada Ahora", a.isAlquilado());
+            jsonObject.put("num Veces Alquilada", a.getNumAlquilado());
+
+            // Añade el objeto al array
+            jsonArray.put(jsonObject);
+        }
+
+        // Intenta escribir el archivo
+        try (FileWriter file = new FileWriter(filePath)) {
+            file.write(jsonArray.toString(4));  // Formato con sangría
+            System.out.println("Archivo JSON de alojamientos exportado exitosamente a: " + filePath);
+        } catch (IOException e) {
+            // Error al escribir
+            System.err.println("Error al escribir el archivo JSON: " + e.getMessage());
+        }
+    }
+}
