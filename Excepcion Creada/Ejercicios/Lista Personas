@@ -1,0 +1,29 @@
+package Ejercicio_02;
+
+/**
+ *
+ * @author JKur
+ * @version 1.0
+ * @see ExcepcionArrayLleno
+ */
+public class ListaPersona {
+
+    private Persona[] listaP;
+    private int posicion;
+
+    public ListaPersona() {
+        this.listaP = new Persona[10]; // Array de tamaño 10
+        this.posicion = 0;
+    }
+
+    public void anadirPersona(Persona p) throws ExcepcionArrayLleno {
+        if (posicion >= listaP.length) {
+            throw new ExcepcionArrayLleno("El array esta lleno");
+        } else {
+            listaP[posicion] = p;
+            posicion++;
+            System.out.println("Persona anyadida en la posicion: " + (posicion - 1));
+        }
+    }
+
+}
