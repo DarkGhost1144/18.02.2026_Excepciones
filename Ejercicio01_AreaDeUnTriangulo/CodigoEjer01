@@ -1,0 +1,32 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+/**
+ *
+ * @author Jkur
+ * @version 1.0
+ * @see InputMismatchException
+ */
+public class ManejoExcepciones_Ejer01 {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        try {
+            int base;
+            int altura;
+            int areaTriangulo;
+
+            System.out.println("Introduce la base");
+            base = sc.nextInt();
+
+            System.out.println("Introduce la altura");
+            altura = sc.nextInt();
+
+            areaTriangulo = (base * altura) / 2;
+
+            System.out.println("El area del triangulo es: " + areaTriangulo);
+        } catch (InputMismatchException e) {
+            System.err.println("Has introducido letras, simbolos o un formato numerico incorrecto.");
+        }
+    }
+}
