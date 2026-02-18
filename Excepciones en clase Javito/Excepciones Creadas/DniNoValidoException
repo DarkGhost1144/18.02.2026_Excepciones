@@ -1,0 +1,16 @@
+package Ejercicio03_Javitos;
+
+/**
+ *
+ * @author Jkur
+ * @version 1.0
+ * @see Exception
+ * @see DniNoValidoException
+ */
+public class DniNoValidoException extends Exception {
+
+    public DniNoValidoException(String message) {
+        super(message);
+    }
+
+}
