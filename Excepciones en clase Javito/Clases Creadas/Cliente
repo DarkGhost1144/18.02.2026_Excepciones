@@ -1,0 +1,228 @@
+
+
+/**
+ * Clase que representa un cliente del sistema de gestión de alojamientos.
+ * Contiene información personal del cliente y su historial de alojamientos.
+ * Implementa Comparable para permitir ordenación alfabética por nombre.
+ *
+ * @author Jkur
+ * @version 3.0
+ * @see Comparable
+ */
+public class Cliente implements Comparable<Cliente> {
+
+    // Atributos de información personal
+    /**
+     * Nombre completo del cliente
+     */
+    private String nombre;
+
+    /**
+     * DNI del cliente (formato: 8 dígitos + letra)
+     */
+    private String dni;
+
+    /**
+     * Dirección de correo electrónico
+     */
+    private String email;
+
+    /**
+     * Ciudad o localidad de residencia
+     */
+    private String lugarResidencia;
+
+    /**
+     * Contador de veces que el cliente se ha alojado
+     */
+    private int numVecesAlojado;
+
+    /**
+     * Constructor principal de Cliente. Inicializa el cliente con sus datos
+     * personales validando DNI y email. El contador de alojamientos se
+     * inicializa en 0.
+     *
+     * @param nombre Nombre completo del cliente
+     * @param dni DNI (8 dígitos seguidos de una letra)
+     * @param email Dirección de correo electrónico válida
+     * @param lugarResidencia Ciudad o localidad de residencia
+     */
+    public Cliente(String nombre, String dni, String email, String lugarResidencia) {
+        // Asignación directa de parámetros sin validación
+        this.nombre = nombre;
+        this.lugarResidencia = lugarResidencia;
+
+        // Inicialización del contador según especificación
+        this.numVecesAlojado = 0;  // El cliente comienza sin alojamientos
+
+        // Asignación con validación mediante setters
+        this.setDni(dni);      // Valida formato de DNI
+        this.setEmail(email);  // Valida formato de email
+    }
+
+    /**
+     * Registra un nuevo alojamiento del cliente. Incrementa en una unidad el
+     * contador de veces que se ha alojado.
+     */
+    public void alojar() {
+        this.numVecesAlojado++;  // Incrementa el contador de alojamientos
+    }
+
+    /**
+     * Obtiene el nombre del cliente.
+     *
+     * @return Nombre completo
+     */
+    public String getNombre() {
+        return nombre;
+    }
+
+    /**
+     * Establece el nombre del cliente.
+     *
+     * @param nombre Nuevo nombre completo
+     */
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    /**
+     * Obtiene el DNI del cliente.
+     *
+     * @return DNI en formato 8 dígitos + letra mayúscula
+     */
+    public String getDni() {
+        return dni;
+    }
+
+    /**
+     * Establece y valida el DNI del cliente. Valida que el formato sea correcto
+     * (8 dígitos + letra). Si el formato es incorrecto, asigna un DNI por
+     * defecto y muestra error.
+     *
+     * @param dni DNI a validar (formato: 12345678A)
+     */
+    public void setDni(String dni) {
+        // Expresión regular: 8 dígitos seguidos de una letra
+        String formato = "\\d{8}[A-Za-z]";
+
+        // Valida el DNI contra el patrón
+        if (dni != null && dni.matches(formato)) {
+            this.dni = dni.toUpperCase();  // Guarda en mayúsculas para normalizar
+        } else {
+            // DNI inválido: muestra error y asigna valor por defecto
+            System.err.println("Error: DNI incorrecto (" + dni + "). Asignando por defecto.");
+            this.dni = "00000000X";
+        }
+    }
+
+    /**
+     * Obtiene el email del cliente.
+     *
+     * @return Dirección de correo electrónico
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Establece y valida el email del cliente. Valida que el formato sea
+     * correcto (usuario@dominio). Si el formato es incorrecto, asigna un email
+     * por defecto y muestra error.
+     *
+     * @param email Email a validar
+     */
+    public void setEmail(String email) {
+        // Expresión regular para validar formato de email
+        String formato = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+
+        // Valida el email contra el patrón
+        if (email != null && email.matches(formato)) {
+            this.email = email.toLowerCase();  // Guarda en minúsculas para normalizar
+        } else {
+            // Email inválido: muestra error y asigna valor por defecto
+            System.err.println("Error: Email incorrecto (" + email + ").");
+            this.email = "sin-email@dominio.com";
+        }
+    }
+
+    /**
+     * Obtiene el lugar de residencia del cliente.
+     *
+     * @return Ciudad o localidad de residencia
+     */
+    public String getLugarResidencia() {
+        return lugarResidencia;
+    }
+
+    /**
+     * Establece el lugar de residencia del cliente.
+     *
+     * @param lugarResidencia Nueva ciudad o localidad
+     */
+    public void setLugarResidencia(String lugarResidencia) {
+        this.lugarResidencia = lugarResidencia;
+    }
+
+    /**
+     * Obtiene el número de veces que el cliente se ha alojado.
+     *
+     * @return Contador de alojamientos
+     */
+    public int getNumVecesAlojado() {
+        return numVecesAlojado;
+    }
+
+    /**
+     * Establece directamente el número de veces alojado. Nota: Se recomienda
+     * usar el método alojar() para incrementar este valor.
+     *
+     * @param numVecesAlojado Nuevo valor del contador
+     */
+    public void setNumVecesAlojado(int numVecesAlojado) {
+        this.numVecesAlojado = numVecesAlojado;
+    }
+
+    /**
+     * Genera una representación textual del cliente. Incluye nombre, DNI,
+     * residencia y número de visitas.
+     *
+     * @return Cadena con la información del cliente
+     */
+    @Override
+    public String toString() {
+        return "Cliente: " + nombre
+                + " | DNI: " + dni
+                + " | Residencia: " + lugarResidencia
+                + " | Visitas: " + numVecesAlojado;
+    }
+
+    /**
+     * Compara este cliente con otro para ordenación alfabética. La comparación
+     * se realiza por nombre, ignorando mayúsculas/minúsculas.
+     *
+     * @param otroCliente Cliente con el que comparar
+     * @return Valor negativo si este va antes, positivo si va después, 0 si son
+     * iguales
+     */
+    @Override
+    public int compareTo(Cliente otroCliente) {
+        // Comprobación de nulidad
+        if (otroCliente == null) {
+            return 1;  // Este cliente va después de un valor nulo
+        }
+
+        // Compara los nombres ignorando mayúsculas/minúsculas
+        int resultado = this.nombre.compareToIgnoreCase(otroCliente.getNombre());
+
+        // Retorna -1, 0 o 1 según la comparación
+        if (resultado < 0) {
+            return -1;  // Este nombre va antes alfabéticamente
+        } else if (resultado > 0) {
+            return 1;   // Este nombre va después alfabéticamente
+        } else {
+            return 0;   // Los nombres son iguales
+        }
+    }
+}
+
