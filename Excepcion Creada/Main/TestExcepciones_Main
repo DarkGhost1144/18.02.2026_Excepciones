@@ -1,0 +1,22 @@
+package Ejercicio_02;
+
+/**
+ *
+ * @author JKur
+ * @version 1.0
+ * @see ExcepcionArrayLleno
+ */
+public class TestExcepciones_Main {
+
+    public static void main(String[] args) {
+        ListaPersona p = new ListaPersona();
+
+        try {
+            for (int i = 0; i <= 10; i++) {
+                p.anadirPersona(new Persona("1234567" + i, "jkur555 " + i));
+            }
+        } catch (ExcepcionArrayLleno e) {
+            System.err.println("Imposible anyadir, array lleno");
+        }
+    }
+}
