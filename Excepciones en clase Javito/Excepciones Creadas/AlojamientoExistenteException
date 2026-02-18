@@ -1,0 +1,16 @@
+package Ejercicio03_Javitos;
+
+/**
+ *
+ * @author Jkur
+ * @version 1.0
+ * @see Exception
+ * @see AlojamientoExistenteException
+ */
+public class AlojamientoExistenteException extends Exception{
+
+    public AlojamientoExistenteException(String message) {
+        super(message);
+    }
+    
+}
