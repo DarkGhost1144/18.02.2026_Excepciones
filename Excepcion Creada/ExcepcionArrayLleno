@@ -1,1 +1,12 @@
-
+/**
+ *
+ * @author JKur
+ * @version 1.0
+ */
+public class ExcepcionArrayLleno extends Exception {
+    
+    public ExcepcionArrayLleno(String mensaje) {
+        super(mensaje);
+    }
+    
+}
