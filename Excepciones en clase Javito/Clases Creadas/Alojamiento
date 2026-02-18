@@ -1,0 +1,259 @@
+/**
+ * Clase que representa un alojamiento turístico. Contiene información sobre sus
+ * características físicas, tarifa y estado de alquiler. Implementa Comparable
+ * para permitir ordenación alfabética por nombre.
+ *
+ * @author Jkur
+ * @version 3.0
+ * @see Comparable
+ */
+public class Alojamiento implements Comparable<Alojamiento> {
+
+    // Atributos de configuración del alojamiento
+    /**
+     * Nombre identificativo del alojamiento
+     */
+    private String nombre;
+
+    /**
+     * Número máximo de personas que pueden alojarse
+     */
+    private int capacidad;
+
+    /**
+     * Precio por noche en euros
+     */
+    private double tarifa;
+
+    /**
+     * Indica si el alojamiento dispone de chimenea
+     */
+    private boolean chimenea;
+
+    /**
+     * Indica si el alojamiento dispone de jacuzzi
+     */
+    private boolean jacuzzi;
+
+    // Atributos de gestión interna (no se pasan por constructor)
+    /**
+     * Estado actual del alojamiento: true si está alquilado, false si está
+     * disponible
+     */
+    private boolean alquilado;
+
+    /**
+     * Contador de veces que ha sido alquilado este alojamiento
+     */
+    private int numAlquilado;
+
+    /**
+     * Constructor principal de Alojamiento. Inicializa el alojamiento con sus
+     * características y lo marca como disponible. El contador de alquileres se
+     * inicializa en 0.
+     *
+     * @param nombre Nombre identificativo del alojamiento
+     * @param capacidad Número máximo de huéspedes permitido
+     * @param tarifa Precio por noche en euros
+     * @param chimenea true si tiene chimenea, false en caso contrario
+     * @param jacuzzi true si tiene jacuzzi, false en caso contrario
+     */
+    public Alojamiento(String nombre, int capacidad, double tarifa, boolean chimenea, boolean jacuzzi) {
+        // Asignación de parámetros recibidos
+        this.nombre = nombre;
+        this.capacidad = capacidad;
+        this.tarifa = tarifa;
+        this.chimenea = chimenea;
+        this.jacuzzi = jacuzzi;
+
+        // Inicialización de valores por defecto
+        this.alquilado = false;  // El alojamiento comienza disponible
+        this.numAlquilado = 0;   // Sin alquileres previos
+    }
+
+    /**
+     * Alquila el alojamiento. Marca el alojamiento como ocupado e incrementa el
+     * contador de veces alquilado. Si el alojamiento ya estaba alquilado, no
+     * realiza ninguna acción.
+     */
+    public void alquilar() {
+        // Solo procede si el alojamiento está disponible
+        if (!this.alquilado) {
+            this.alquilado = true;      // Marca como alquilado
+            this.numAlquilado++;         // Incrementa el contador
+        }
+    }
+
+    /**
+     * Libera el alojamiento. Marca el alojamiento como disponible para nuevos
+     * alquileres. No modifica el contador de veces alquilado.
+     */
+    public void liberar() {
+        this.alquilado = false;  // Marca como disponible
+    }
+
+    /**
+     * Obtiene el nombre del alojamiento.
+     *
+     * @return Nombre del alojamiento
+     */
+    public String getNombre() {
+        return nombre;
+    }
+
+    /**
+     * Establece el nombre del alojamiento.
+     *
+     * @param nombre Nuevo nombre del alojamiento
+     */
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    /**
+     * Obtiene la capacidad máxima de huéspedes.
+     *
+     * @return Número de personas que pueden alojarse
+     */
+    public int getCapacidad() {
+        return capacidad;
+    }
+
+    /**
+     * Establece la capacidad máxima de huéspedes.
+     *
+     * @param capacidad Nuevo número de personas permitidas
+     */
+    public void setCapacidad(int capacidad) {
+        this.capacidad = capacidad;
+    }
+
+    /**
+     * Obtiene la tarifa por noche.
+     *
+     * @return Precio en euros
+     */
+    public double getTarifa() {
+        return tarifa;
+    }
+
+    /**
+     * Establece la tarifa por noche.
+     *
+     * @param tarifa Nuevo precio en euros
+     */
+    public void setTarifa(double tarifa) {
+        this.tarifa = tarifa;
+    }
+
+    /**
+     * Comprueba si el alojamiento tiene chimenea.
+     *
+     * @return true si tiene chimenea, false en caso contrario
+     */
+    public boolean isChimenea() {
+        return chimenea;
+    }
+
+    /**
+     * Establece si el alojamiento tiene chimenea.
+     *
+     * @param chimenea true para indicar que tiene chimenea
+     */
+    public void setChimenea(boolean chimenea) {
+        this.chimenea = chimenea;
+    }
+
+    /**
+     * Comprueba si el alojamiento tiene jacuzzi.
+     *
+     * @return true si tiene jacuzzi, false en caso contrario
+     */
+    public boolean isJacuzzi() {
+        return jacuzzi;
+    }
+
+    /**
+     * Establece si el alojamiento tiene jacuzzi.
+     *
+     * @param jacuzzi true para indicar que tiene jacuzzi
+     */
+    public void setJacuzzi(boolean jacuzzi) {
+        this.jacuzzi = jacuzzi;
+    }
+
+    /**
+     * Comprueba si el alojamiento está actualmente alquilado.
+     *
+     * @return true si está alquilado, false si está disponible
+     */
+    public boolean isAlquilado() {
+        return alquilado;
+    }
+
+    /**
+     * Establece el estado de alquiler del alojamiento.
+     *
+     * @param alquilado true para marcar como alquilado, false para disponible
+     */
+    public void setAlquilado(boolean alquilado) {
+        this.alquilado = alquilado;
+    }
+
+    /**
+     * Obtiene el número total de veces que ha sido alquilado.
+     *
+     * @return Contador de alquileres realizados
+     */
+    public int getNumAlquilado() {
+        return numAlquilado;
+    }
+
+    /**
+     * Establece el número de veces alquilado.
+     *
+     * @param numAlquilado Nuevo valor del contador
+     */
+    public void setNumAlquilado(int numAlquilado) {
+        this.numAlquilado = numAlquilado;
+    }
+
+    /**
+     * Genera una representación textual del alojamiento. Incluye nombre,
+     * capacidad, tarifa, estado de alquiler y total de alquileres.
+     *
+     * @return Cadena con la información del alojamiento
+     */
+    @Override
+    public String toString() {
+        return "Alojamiento: " + nombre
+                + " | Capacidad: " + capacidad
+                + " | Tarifa: " + tarifa + "€"
+                + " | Alquilado: " + (alquilado ? "Sí" : "No")
+                + " | Total alquileres: " + numAlquilado;
+    }
+
+    /**
+     * Compara este alojamiento con otro para ordenación alfabética. La
+     * comparación se realiza por nombre, ignorando mayúsculas/minúsculas.
+     *
+     * @param otro Alojamiento con el que comparar
+     * @return Valor negativo si este va antes, positivo si va después, 0 si son
+     * iguales
+     */
+    @Override
+    public int compareTo(Alojamiento otro) {
+        // Compara los nombres ignorando mayúsculas/minúsculas
+        int resultado = this.nombre.compareToIgnoreCase(otro.getNombre());
+
+        // Retorna -1, 0 o 1 según la comparación
+        if (resultado < 0) {
+            return -1;  // Este nombre va antes alfabéticamente
+        } else if (resultado > 0) {
+            return 1;   // Este nombre va después alfabéticamente
+        } else {
+            return 0;   // Los nombres son iguales
+        }
+    }
+}
+
