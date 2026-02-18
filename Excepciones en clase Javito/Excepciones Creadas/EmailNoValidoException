@@ -1,0 +1,16 @@
+package Ejercicio03_Javitos;
+
+/**
+ *
+ * @author Jkur
+ * @version 1.0
+ * @see Exception
+ * @see EmailNoValidoException
+ */
+public class EmailNoValidoException extends Exception{
+
+    public EmailNoValidoException(String message) {
+        super(message);
+    }
+    
+}
